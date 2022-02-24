@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "NomUI devtools",
+  "version": "1.0",
+
+  "icons": {
+    "16": "img/icon16.png",
+    "48": "img/icon48.png",
+    "128": "img/icon128.png"
+  },
+
+  "devtools_page": "devtools.html",
+
+
+  "permissions": ["tabs", "activeTab", "contextMenus"],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["js/content.js"],
+      "run_at": "document_start"
+    }
+  ],
+
+  "web_accessible_resources":  [{
+    "resources": ["js/get-inst.js" ],
+    "matches":  ["<all_urls>"]
+  }]
+
+}
