@@ -16,6 +16,7 @@ chrome.devtools.panels.elements.createSidebarPane("NomUI", function (sidebar) {
   });
   // 监听后台页面消息，更新审查元素的NomUI面板
   port.onMessage.addListener((msg) => {
+    console.log('4444444444444', msg);
     sidebar.setObject(msg);
   });
 });

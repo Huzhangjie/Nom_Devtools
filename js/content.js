@@ -24,6 +24,7 @@ function getInst(ele) {
     }
   }
   ele.classList.add('current-nom-target')
+  console.log('00000000000000000', ele)
   window.postMessage("initGetInst")
 }
 
@@ -31,9 +32,10 @@ function getInst(ele) {
 window.addEventListener(
   "message",
   function (event) {
+    console.log('33333333333333', event);
     if (event.data && event.data.title === "NomInst") {
+      console.log('33333333-1111111111111111', event);
       chrome.runtime.sendMessage(event.data.params)
-      
     }
   },
   false

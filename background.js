@@ -24,6 +24,7 @@ chrome.runtime.onConnect.addListener(function (port) {
 
 // 接收内容脚本的消息，并给对应tab页发送消息
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log('555555555555555', message, sender);
   if (sender.tab) {
     const tabId = sender.tab.id;
     if (tabId in connections) {

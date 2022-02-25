@@ -14,9 +14,10 @@ window.addEventListener(
 function getInst() {
   const current = document.querySelector(".current-nom-target");
   const { component } = current;
-  console.log('222222222222222222', component)
+  console.log('222222222222222222 current', current, component)
   if (component) {
     const obj = JSON.stringify(component,getCircularReplacer())
+    debugger
     window.postMessage({title:"NomInst",params:JSON.parse(obj)});
     console.log(JSON.parse(obj))
   } 
