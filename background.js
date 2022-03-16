@@ -25,8 +25,23 @@ chrome.runtime.onConnect.addListener(function (port) {
 // 接收内容脚本的消息，并给对应tab页发送消息
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log('555555555555555', message, sender);
+  // chrome.devtools.inspectedWindow.eval(`
+  //   console.log('+++++++++++++++')
+  // `)
   if (sender.tab) {
     const tabId = sender.tab.id;
+
+    if (message.nomUIDetected) {
+      // chrome.browserAction.setIcon({
+      //     tabId,
+      //     path: 'icons/icon-active.png',
+      // });
+      chrome.browserAction.setPopup({
+          tabId,
+          popup: 'popups/enabled.html',
+      });
+    }
+
     if (tabId in connections) {
       connections[tabId].postMessage(message);
     } else {
