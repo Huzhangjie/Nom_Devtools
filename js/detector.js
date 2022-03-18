@@ -1,12 +1,10 @@
 // 检测页面是否挂载
 window.addEventListener("message", (e) => {
-  console.log('message', e);
   if (e.source === window && e.data.nomUIDetected) {
     chrome.runtime.sendMessage(e.data);
   }
 });
 function detect(win) {
-  console.log('detect', win);
   setTimeout(() => {
     if (win.nomui) {
       win.postMessage({

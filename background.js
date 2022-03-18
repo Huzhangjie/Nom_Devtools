@@ -2,14 +2,16 @@
 const connections = {};
 
 chrome.runtime.onConnect.addListener(function (port) {
+  console.log("🚀 ~ ----------------------------", port)
   const extensionListener = function (message, sender, sendResponse) {
-    if (message.name == "NomPort") {
+    if (message.name == "original") {
       connections[message.tabId] = port;
     }
   };
   port.onMessage.addListener(extensionListener);
 
   port.onDisconnect.addListener(function (port) {
+    console.log("🚀 ~ file: background.js ~ line 24 ~ port", port, connections)
     port.onMessage.removeListener(extensionListener);
 
     const tabs = Object.keys(connections);
@@ -24,13 +26,9 @@ chrome.runtime.onConnect.addListener(function (port) {
 
 // 接收内容脚本的消息，并给对应tab页发送消息
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log('555555555555555', message, sender);
-  // chrome.devtools.inspectedWindow.eval(`
-  //   console.log('+++++++++++++++')
-  // `)
   if (sender.tab) {
     const tabId = sender.tab.id;
-
+    
     if (message.nomUIDetected) {
       // chrome.browserAction.setIcon({
       //     tabId,
@@ -41,8 +39,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           popup: 'popups/enabled.html',
       });
     }
-
+    
     if (tabId in connections) {
+      console.log('555555555555555', message, tabId, connections);
       connections[tabId].postMessage(message);
     } else {
       console.log("Tab not found in connection list.");

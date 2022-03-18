@@ -3,7 +3,7 @@ window.addEventListener(
   "message",
   function (event) {
     console.log('1111111111111', event)
-    if (event.data && event.data === "initGetInst") {
+    if (event.data && event.data.name === "initGetInst") {
       getInst();
     }
   },
@@ -12,14 +12,18 @@ window.addEventListener(
 
 // 获取唯一标识的dom元素，打印其实例
 function getInst() {
+  debugger
   const current = document.querySelector(".current-nom-target");
   const { component } = current;
   console.log('222222222222222222 current', current, component)
   if (component) {
     const obj = JSON.stringify(component,getCircularReplacer())
+    console.log("🚀 ~ file: get-inst.js ~ line 20 ~ getInst ~ obj", obj)
 
-    window.postMessage({title:"NomInst",params:JSON.parse(obj)});
-    console.log(JSON.parse(obj))
+    chrome.runtime.sendMessage({
+      name: 'updateTree',
+      value: JSON.parse(obj)
+    });
   } 
   
 }
@@ -37,3 +41,4 @@ const getCircularReplacer = () => {
     return value;
   };
 }
+

@@ -24,18 +24,18 @@
       "matches": ["<all_urls>"],
       "js": ["js/content.js"],
       "run_at": "document_start"
-    },
-    {
-      "matches": ["<all_urls>"],
-      "js": ["js/detector.js"],
-      "run_at": "document_idle"
     }
+    // {
+    //   "matches": ["<all_urls>"],
+    //   "js": ["js/detector.js"],
+    //   "run_at": "document_idle"
+    // }
   ],
   
   "browser_action": {
     "default_icon": "img/icon16.png",
     "default_title": "NomUI Devtools",
     "default_popup": "popups/not-found.html"
-  }
-  // "web_accessible_resources":  ["css/nomui.css"]
+  },
+  "web_accessible_resources":  ["js/get-inst.js"]
 }

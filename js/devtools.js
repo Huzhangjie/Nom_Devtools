@@ -51,16 +51,35 @@ function createPanels() {
       let _window;
       const contentScriptData = [];
 
-      // 与后台网页消息通信-长连接
+      // 1.与后台网页消息通信-长连接
       const port = chrome.runtime.connect({ name: "devtools" });
-      // 监听来自页面中的事件，content-sctipt background devtool
-      port.onMessage.addListener((message) => {
-        console.log("🚀 ~ file: .port", message)
-      });
+      // chrome.tabs.getCurrent(tab => {
+      // chrome.tabs.executeScript(chrome.devtools.inspectedWindow.tabId, {file: 'js/get-inst.js'});
+      // })
+
+      // 2.搭桥: 此步骤后，调动 background的即可通知到当前 devtools中
       port.postMessage({
-        name: "original",
         tabId: chrome.devtools.inspectedWindow.tabId,
+        name: "original",
       });
+
+      chrome.devtools.inspectedWindow.eval(`
+        console.log('_window.onShown');
+        getInst1();
+      `,{
+        useContentScriptContext: true,
+      })
+      // 3.监听来自页面中的事件，content-sctipt background devtool
+      port.onMessage.addListener((message) => {
+        // 3.1 通过 contentScriptReceiver 实现 devtools和 panelWindow 间的通信
+        if (_window && _window.contentScriptReceiver) {
+          _window.contentScriptReceiver(message);
+        } else {
+          // 3.2 panel页面还没 show过, 则先将事件存下来
+          contentScriptData.push(message);
+        }
+      });
+
       // 执行代码
       const sendMessageToBackground = (message, callback) => {
         chrome.devtools.inspectedWindow.eval(message, (value) => {
@@ -69,33 +88,35 @@ function createPanels() {
       };
 
       extensionPanel.onShown.addListener((panelWindow) => {
-        let obj = '123'
+        _window = panelWindow;
 
-        // _window = panelWindow;
-        // // 审查窗口
-        // _window.inspectedWindow = chrome.devtools.inspectedWindow;
+        // 审查窗口
+        _window.inspectedWindow = chrome.devtools.inspectedWindow;
+    
 
-        chrome.devtools.inspectedWindow.eval(`
-          console.log('3333333333333333333',  obj);
-        `,
-        {
-            useContentScriptContext: true,
-          }
-        );
-        // _window.respond = function (msg, callback) {
-        //   sendMessageToBackground(msg, callback);
-        // };
+        // panelWindow.updateTree(JSON.stringify([
+        //   {
+        //     text: 'Button 1',
+        //     children: [
+        //       { text: 'Layout 1.1', children: [{ text: 'Grid 1.1.1' }, { text: '节点 1.1.2' }] },
+        //       { text: '节点 1.2' },
+        //     ],
+        //   }
+        // ]))
+        
+        _window.inspectedWindow.eval(`
+          console.log('_window.onShown', ${JSON.stringify(contentScriptData)})
+        `,{
+          useContentScriptContext: true
+        })
+        _window.respond = function (msg, callback) {
+          sendMessageToBackground(msg, callback);
+        };
 
-        // while (contentScriptData.length !== 0) {
-        //   _window.contentScriptReceiver(contentScriptData.shift());
-        // }
+        while (contentScriptData.length !== 0) {
+          _window.contentScriptReceiver(contentScriptData.shift());
+        }
       });
-
-      // extensionPanel.onHidden.addListener((e) => {
-      //   chrome.devtools.inspectedWindow.eval(`
-      //     console.log('this', this, ${e})
-      //   `);
-      // });
     }
   );
 }
