@@ -7,15 +7,21 @@ window.addEventListener("message", (e) => {
 function detect(win) {
   setTimeout(() => {
     if (win.nomui) {
-      win.postMessage({
-        name: "paintRecording",
-        nomUIDetected: true,
-      }, "*");
+      win.postMessage(
+        {
+          name: "paintRecording",
+          nomUIDetected: true,
+        },
+        "*"
+      );
     } else {
-      win.postMessage({
-        name: "paintRecording",
-        nomUIDetected: false,
-      }, "*");
+      win.postMessage(
+        {
+          name: "paintRecording",
+          nomUIDetected: false,
+        },
+        "*"
+      );
     }
   }, 100);
 }

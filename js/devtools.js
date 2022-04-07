@@ -63,12 +63,6 @@ function createPanels() {
         name: "original",
       });
 
-      chrome.devtools.inspectedWindow.eval(`
-        console.log('_window.onShown');
-        getInst1();
-      `,{
-        useContentScriptContext: true,
-      })
       // 3.监听来自页面中的事件，content-sctipt background devtool
       port.onMessage.addListener((message) => {
         // 3.1 通过 contentScriptReceiver 实现 devtools和 panelWindow 间的通信
@@ -93,19 +87,9 @@ function createPanels() {
         // 审查窗口
         _window.inspectedWindow = chrome.devtools.inspectedWindow;
     
-
-        // panelWindow.updateTree(JSON.stringify([
-        //   {
-        //     text: 'Button 1',
-        //     children: [
-        //       { text: 'Layout 1.1', children: [{ text: 'Grid 1.1.1' }, { text: '节点 1.1.2' }] },
-        //       { text: '节点 1.2' },
-        //     ],
-        //   }
-        // ]))
         
         _window.inspectedWindow.eval(`
-          console.log('_window.onShown', ${JSON.stringify(contentScriptData)})
+          console.log('_window.onShown', ${JSON.stringify(contentScriptData)}, ${contentScriptData.length})
         `,{
           useContentScriptContext: true
         })
