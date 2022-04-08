@@ -10,6 +10,15 @@ const INDICATOR_PROPS = {
   },
 };
 
+function proxyConsole(msg, type = '----') {
+  chrome.devtools.inspectedWindow.eval(
+    `console.log('${type}', ${JSON.stringify(msg)})`,
+    {
+      useContentScriptContext: true
+    }
+  );
+}
+
 let treeRef = null;
 let rightRowsRef = null; // 右侧的 props, data, methods的rowsRef
 const rightContentRef = {};
@@ -19,16 +28,16 @@ const handlers = {
     getElements();
   },
   updateTree(id, value) {
-    value = value.children[0]
+    value = value.children[0];
     chrome.devtools.inspectedWindow.eval(
       `
-      console.log('updateTree-----', ${JSON.stringify(id)}, ${JSON.stringify(
+      console.log('updateTree------------', ${JSON.stringify(id)}, ${JSON.stringify(
         value
       )})
     `,
-    {
-      useContentScriptContext: true,
-    }
+      {
+        useContentScriptContext: true,
+      }
     );
     // treeRef.update({data: value})
     treeRef.update({ data: [_parseTreeData(value)] });
@@ -39,8 +48,8 @@ function _parseTreeData(value) {
   return {
     ...value,
     componentType: `<${value.componentName || value.componentType}>`,
-    children: value.children.map(child => _parseTreeData(child))
-  }
+    children: value.children.map((child) => _parseTreeData(child)),
+  };
 }
 
 window.contentScriptReceiver = (data) => {
@@ -149,32 +158,78 @@ const getRightRows = (data) => {
   }));
 };
 
-new nomui.Cols({
-  // items: [
-    // {
-    //   component: "Textbox",
-    //   label: "查询的值",
-    // },
-    // {
-      // component: "Cols",
+new nomui.Component({
+  children: [
+    {
+      component: "Flex",
+      justify: "between",
+      align: "center",
+      styles: { border: ["bottom"] },
+      cols: [
+        {
+          component: "Button",
+          text: "NomDevtool",
+          type: "text",
+          tooltip: "点击跳转",
+        },
+        {
+          component: "List",
+          gutter: "sm",
+          items: [
+            {
+              type: "focus",
+              tooltip: "Select component in the page",
+              onClick(args) {
+                console.log(
+                  "🚀 ~ file: basic.js ~ line 141 ~ onClick ~ args",
+                  args
+                );
+              },
+            },
+            { type: "refresh", tooltip: "Force refresh" },
+          ],
+          itemDefaults: {
+            component: "Icon",
+          },
+        },
+      ],
+    },
+    {
+      component: "Cols",
       strechIndex: 1,
       align: "start",
-  
       items: [
         {
           component: "Tree",
-          attrs: {style: {
-            height: '100vh',
-            overflowY: 'auto'
-          }},
+          attrs: {
+            style: {
+              height: "100vh",
+              overflowY: "auto",
+            },
+          },
           ref: (c) => {
             treeRef = c;
           },
-          initExpandLevel: 1,
-          expandable: {
-            // byIndicator: true,
+          onmousemove({ target }) {
+            if (
+              target.component.componentType !== "TreeNodeContent" ||
+              target === lastMousemoveNode
+            )
+              return;
+            lastMousemoveNode = target;
+            chrome.devtools.inspectedWindow.eval(
+              `console.log('123')`
+            )
+            // proxyConsole(lastMousemoveNode)
           },
+          expandable: { byIndicator: true },
           onNodeClick({ node }) {
+            chrome.devtools.inspectedWindow.eval(
+              `console.log('123', ${JSON.stringify(node.componentType)})`,
+              {
+                useContentScriptContext: true
+              }
+            )
             rightRowsRef.update({ items: getRightRows(node.props.data) });
           },
           dataFields: {
@@ -185,17 +240,20 @@ new nomui.Cols({
         },
         {
           component: "Rows",
-          attrs: {style: {
-            height: '100vh',
-            overflowY: 'auto'
-          }},
+          attrs: {
+            style: {
+              height: "100vh",
+              overflowY: "auto",
+            },
+          },
           ref: (c) => {
             rightRowsRef = c;
           },
           items: getRightRows(),
         },
       ],
-
+    },
+  ],
 });
 chrome.devtools.inspectedWindow.eval(
   `
