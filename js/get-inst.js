@@ -53,39 +53,34 @@ function getInst() {
   }
 }
 
-function getComponentTree(component) {
-  let data = {},
-    methods = {};
-
+/**
+ * 从组件中获取 devtools中的 Tree数据
+ * @param {*} component 组件对象
+ * @param {*} lastSelector 选择器名称
+ * @returns 
+ */
+function getComponentTree(component, lastSelector = null) {
   const {componentType} = component
 
-  Object.keys(component).forEach((key) => {
-    let value = component[key];
-    if (IGNORE_COMP_KEYS.includes(key) || key === 'props') {
-      return;
-    } else if(componentType === 'Grid' && [].includes(key)) {
-      return
-    } else if (isFunction(value)) {
-      methods[key] = value;
-    } else {
-      data[key] = value
-    }
-  });
+  const { data, methods} = getDataAndMethodsFormComp(component)
 
   delete component.props.children
   // delete component.props.reference
 
+  // 选择器类名
+  const __nom_selector = getSelectorFormComp(component, lastSelector)
+
   return {
     componentType: componentType,
     key: component.key,
+    __nom_selector,
     props: component.props,
     data,
-    // data: componentType === 'Grid' ? {} : data,
     methods,
     children: component
       .getChildren()
       .filter((child) => child)
-      .map((child) => getComponentTree(child)),
+      .map((child) => getComponentTree(child, __nom_selector)),
   };
 }
 
@@ -114,4 +109,36 @@ function getCircularReplacer() {
     return value;
   
   };
+}
+
+// 获取 data 和 methods
+function getDataAndMethodsFormComp(component) {
+  let data = {},
+  methods = {};
+  Object.keys(component).forEach((key) => {
+    let value = component[key];
+    if (IGNORE_COMP_KEYS.includes(key) || key === 'props') {
+      return;
+    } else if (isFunction(value)) {
+      methods[key] = value;
+    } else {
+      data[key] = value
+    }
+  });
+
+  return {data, methods}
+}
+
+/**
+ * @param {*} component 当前组件对象
+ * @param {*} lastSelector 上一级的选择器
+ * @returns 组件的选择器类名 ex: body > div.nom-xxx > xxx
+ */
+function getSelectorFormComp(component, lastSelector) {
+  const tag = component.props.tag
+  const classList = Array.from(component.element.classList)
+  
+  const currentSel = classList.length ? `${tag}.${classList.join('.')}` : tag
+
+  return lastSelector ? `${lastSelector} > ${currentSel}` : currentSel
 }
