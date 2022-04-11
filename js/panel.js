@@ -21,7 +21,9 @@ function proxyConsole(msg, type = '----') {
 
 let treeRef = null;
 let rightRowsRef = null; // 右侧的 props, data, methods的rowsRef
+let lastMousemoveNode = null; // 上一次 mouseover 的节点
 const rightContentRef = {};
+
 
 const handlers = {
   init() {
@@ -206,30 +208,42 @@ new nomui.Component({
               height: "100vh",
               overflowY: "auto",
             },
+            onmousemove({ target }) {
+              if (
+                target.component.componentType !== "TreeNodeContent" ||
+                target === lastMousemoveNode
+                )
+                return;
+                lastMousemoveNode = target;
+
+                chrome.devtools.inspectedWindow.eval(
+                  `console.log('123', ${JSON.stringify(target.component.node.props.data) })`,
+                  {
+                    useContentScriptContext: true
+                  }
+                )
+              chrome.devtools.inspectedWindow.eval(`
+                window.postMessage({
+                  name: 'TO_BACK_COMPONENT_MOUSE_OVER',
+                  payload: ${JSON.stringify(target.component.node.props.data)}
+                })
+              `, { useContentScriptContext: true })
+            },
           },
           ref: (c) => {
             treeRef = c;
           },
-          onmousemove({ target }) {
-            if (
-              target.component.componentType !== "TreeNodeContent" ||
-              target === lastMousemoveNode
-            )
-              return;
-            lastMousemoveNode = target;
-            chrome.devtools.inspectedWindow.eval(
-              `console.log('123')`
-            )
-            // proxyConsole(lastMousemoveNode)
-          },
           expandable: { byIndicator: true },
           onNodeClick({ node }) {
-            chrome.devtools.inspectedWindow.eval(
-              `console.log('123', ${JSON.stringify(node.componentType)})`,
-              {
-                useContentScriptContext: true
-              }
-            )
+            respond(`
+              // console.log('------------------------')
+              0 === false
+            `, (val) => {
+              chrome.devtools.inspectedWindow.eval(
+                `console.log('val', ${JSON.stringify(val)})`,
+                { useContentScriptContext: true }
+              )
+            })
             rightRowsRef.update({ items: getRightRows(node.props.data) });
           },
           dataFields: {
@@ -255,13 +269,14 @@ new nomui.Component({
     },
   ],
 });
+
 chrome.devtools.inspectedWindow.eval(
   `
   window.postMessage({
     name: 'initDevtools',
   })
 `,
-  {
-    useContentScriptContext: true,
-  }
+  // {
+  //   useContentScriptContext: true,
+  // }
 );

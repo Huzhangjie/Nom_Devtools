@@ -41,6 +41,10 @@
     {
       "resources": ["js/get-inst.js" ],
       "matches":  ["<all_urls>"]
+    },
+    {
+      "resources": ["js/highlighter.js" ],
+      "matches":  ["<all_urls>"]
     }
   ]
 }
