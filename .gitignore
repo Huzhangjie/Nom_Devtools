@@ -1,0 +1,4 @@
+node_modules
+/dist/js/panel.js
+/dist/js/get-inst.js
+.vscode
