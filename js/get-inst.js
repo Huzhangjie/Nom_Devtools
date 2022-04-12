@@ -229,23 +229,6 @@ function getComponentBoundsAndName({ __nom_selector, key }) {
 }
 
 
-const IGNORE_COMP_KEYS = [
-  "element",
-  "reference",
-  "referenceComponent",
-  "_placeHolderElement",
-  "referenceElement",
-  "within",
-  "firstRender",
-  "mixins",
-  // "props",
-  "root",
-  "parent",
-  "_propStyleClasses",
-  "__handleClick",
-  // "__handleMouseEnter",
-  // "__handleMouseLeave",
-];
 
 // 监听message,当内容是initGetInst时调用getInst方法
 window.addEventListener(
