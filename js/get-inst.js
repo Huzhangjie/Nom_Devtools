@@ -46,6 +46,25 @@ class JobQueue {
   }
 }
 
+const IGNORE_COMP_KEYS = [
+  "element",
+  "reference",
+  "referenceComponent",
+  "_placeHolderElement",
+  "referenceElement",
+  "within",
+  "firstRender",
+  "mixins",
+  // "props",
+  "root",
+  "parent",
+  "_propStyleClasses",
+  "__handleClick",
+  // "__handleMouseEnter",
+  // "__handleMouseLeave",
+];
+
+
 let overlay;
 let overlayContent;
 let currentInstance;

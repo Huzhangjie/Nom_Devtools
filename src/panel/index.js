@@ -1,141 +1,149 @@
-import { getRightRows } from "./helper.js";
+import { getRightRows } from './helper.js'
+import { _parseTreeData } from '../utils'
 
-let treeRef = null;
-let rightRowsRef = null; // 右侧的 props, data, methods的rowsRef
-let lastMousemoveNode = null; // 上一次 mouseover 的节点
+let treeRef = null
+let rightRowsRef = null // 右侧的 props, data, methods的rowsRef
+let lastMousemoveNode = null // 上一次 mouseover 的节点
 
 const handlers = {
   init() {
-    getElements();
+    getElements()
   },
   updateTree(id, value) {
-    value = value.children[0];
+    value = value.children[0]
     chrome.devtools.inspectedWindow.eval(
       `console.log('updateTree------------', ${JSON.stringify(id)}, ${JSON.stringify(value)})
       `,
-      {useContentScriptContext: true}
-    );
-    treeRef.update({ data: [_parseTreeData(value)] });
+      { useContentScriptContext: true },
+    )
+    treeRef.update({ data: [_parseTreeData(value)] })
   },
-};
+}
 
 window.contentScriptReceiver = (data) => {
-  const handler = handlers[data.name];
+  const handler = handlers[data.name]
 
   if (handler) {
-    handler(data.id, data.value);
+    handler(data.id, data.value)
   }
-};
+}
 
 new nomui.Component({
   children: [
     {
-      component: "Flex",
-      justify: "between",
-      align: "center",
-      styles: { border: ["bottom"] },
+      component: 'Flex',
+      justify: 'between',
+      align: 'center',
+      styles: { border: ['bottom'] },
       cols: [
         {
-          component: "Button",
-          text: "NomDevtool",
-          type: "text",
-          tooltip: "点击跳转",
+          component: 'Button',
+          text: 'NomDevtool',
+          type: 'text',
+          tooltip: '点击跳转',
         },
         {
-          component: "List",
-          gutter: "sm",
+          component: 'List',
+          gutter: 'sm',
           items: [
             {
-              type: "focus",
-              tooltip: "Select component in the page",
+              type: 'focus',
+              tooltip: 'Select component in the page',
               onClick(args) {
-                console.log(
-                  "🚀 ~ file: basic.js ~ line 141 ~ onClick ~ args",
-                  args
-                );
+                console.log('🚀 ~ file: basic.js ~ line 141 ~ onClick ~ args', args)
               },
             },
-            { type: "refresh", tooltip: "Force refresh" },
+            { type: 'refresh', tooltip: 'Force refresh' },
           ],
           itemDefaults: {
-            component: "Icon",
+            component: 'Icon',
           },
         },
       ],
     },
     {
-      component: "Cols",
+      component: 'Cols',
       strechIndex: 1,
-      align: "start",
+      align: 'start',
       items: [
         {
-          component: "Tree",
+          component: 'Tree',
           attrs: {
             style: {
-              height: "100vh",
-              overflowY: "auto",
+              height: '95vh',
+              overflowY: 'auto',
             },
             onmousemove({ target }) {
               if (
-                target.component.componentType !== "TreeNodeContent" ||
+                !target.component ||
+                target.component.componentType !== 'TreeNodeContent' ||
                 target === lastMousemoveNode
-                )
-                return;
-                lastMousemoveNode = target;
+              )
+                return
+              lastMousemoveNode = target
 
-                chrome.devtools.inspectedWindow.eval(
-                  `console.log('123', ${JSON.stringify(target.component.node.props.data) })`,
-                  {
-                    useContentScriptContext: true
-                  }
-                )
-              chrome.devtools.inspectedWindow.eval(`
+              chrome.devtools.inspectedWindow.eval(
+                `
                 window.postMessage({
                   name: 'TO_BACK_COMPONENT_MOUSE_OVER',
                   payload: ${JSON.stringify(target.component.node.props.data)}
                 })
-              `, { useContentScriptContext: true })
+              `,
+                { useContentScriptContext: true },
+              )
+            },
+            onmouseleave() {
+              chrome.devtools.inspectedWindow.eval(
+                `
+                window.postMessage({
+                  name: 'TO_BACK_COMPONENT_MOUSE_LEAVE',
+                  payload: {}
+                })
+                `,
+              )
             },
           },
           ref: (c) => {
-            treeRef = c;
+            treeRef = c
           },
           expandable: { byIndicator: true },
           onNodeClick({ node }) {
-            respond(`
+            respond(
+              `
               // console.log('------------------------')
               0 === false
-            `, (val) => {
-              chrome.devtools.inspectedWindow.eval(
-                `console.log('val', ${JSON.stringify(val)})`,
-                { useContentScriptContext: true }
-              )
-            })
-            rightRowsRef.update({ items: getRightRows(node.props.data) });
+            `,
+              (val) => {
+                chrome.devtools.inspectedWindow.eval(`console.log('val', ${JSON.stringify(val)})`, {
+                  useContentScriptContext: true,
+                })
+              },
+            )
+            rightRowsRef.update({ items: getRightRows(node.props.data) })
           },
           dataFields: {
-            key: "key",
-            text: "componentType",
+            key: 'key',
+            text: 'componentType',
           },
           data: [],
         },
         {
-          component: "Rows",
+          component: 'Rows',
           attrs: {
             style: {
-              height: "100vh",
-              overflowY: "auto",
+              height: '95vh',
+              overflowY: 'auto',
             },
           },
           ref: (c) => {
-            rightRowsRef = c;
+            rightRowsRef = c
           },
           items: getRightRows(),
         },
       ],
     },
   ],
-});
+})
 
 chrome.devtools.inspectedWindow.eval(
   `
@@ -146,4 +154,4 @@ chrome.devtools.inspectedWindow.eval(
   // {
   //   useContentScriptContext: true,
   // }
-);
+)

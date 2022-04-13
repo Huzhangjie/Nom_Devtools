@@ -46,8 +46,9 @@ function getRollupInputOption(input) {
 }
 
 function watchChange(cb) {
-  gulp.watch('src/instance/*.js', buildInst)
-  gulp.watch('src/panel/*.js', buildPanel)
+  gulp.watch('src/**/*.js', buildInst)
+  // gulp.watch('src/instance/*.js', buildInst)
+  gulp.watch('src/**/*.js', buildPanel)
   cb()
 }
 exports.build = gulp.series(buildPanel, buildInst)

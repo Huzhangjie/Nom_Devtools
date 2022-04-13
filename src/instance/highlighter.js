@@ -35,7 +35,7 @@ export async function highlight({ __nom_selector, key }) {
   await jobQueue.queue("highlight", async () => {
     if (!__nom_selector) return;
 
-    const { bounds, name } = getComponentBoundsAndName({ __nom_selector, key });
+    const { bounds, componentType: name } = getComponentBoundsAndName({ __nom_selector, key });
     console.log("🚀 ~ file: highlighter.js ds, name", bounds, name);
     if (bounds) {
       createOverlay();
