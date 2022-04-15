@@ -1,4 +1,4 @@
-import { getRightRows } from './helper.js'
+import { getRightRows, startPickingComponent, stopPickingComponent } from './helper.js'
 import { _parseTreeData } from '../utils'
 
 let treeRef = null
@@ -9,14 +9,24 @@ const handlers = {
   init() {
     getElements()
   },
-  updateTree(id, value) {
+  updateTree(value) {
     value = value.children[0]
     chrome.devtools.inspectedWindow.eval(
-      `console.log('updateTree------------', ${JSON.stringify(id)}, ${JSON.stringify(value)})
-      `,
+      `console.log('updateTree------------', ${JSON.stringify(value)})`,
       { useContentScriptContext: true },
     )
     treeRef.update({ data: [_parseTreeData(value)] })
+  },
+  TO_FRONT_COMPONENT_PICK({ key }) {
+    // 隐藏modal
+    stopPickingComponent()
+
+    treeRef.selectNode(key)
+    const node = treeRef.getNode(key)
+    node && rightRowsRef.update({ items: getRightRows(node.props.data) })
+  },
+  TO_FRONT_COMPONENT_PICK_CANCELED() {
+    stopPickingComponent()
   },
 }
 
@@ -24,7 +34,7 @@ window.contentScriptReceiver = (data) => {
   const handler = handlers[data.name]
 
   if (handler) {
-    handler(data.id, data.value)
+    handler(data.payload)
   }
 }
 
@@ -49,8 +59,8 @@ new nomui.Component({
             {
               type: 'focus',
               tooltip: 'Select component in the page',
-              onClick(args) {
-                console.log('🚀 ~ file: basic.js ~ line 141 ~ onClick ~ args', args)
+              onClick() {
+                startPickingComponent()
               },
             },
             { type: 'refresh', tooltip: 'Force refresh' },
@@ -108,17 +118,6 @@ new nomui.Component({
           },
           expandable: { byIndicator: true },
           onNodeClick({ node }) {
-            respond(
-              `
-              // console.log('------------------------')
-              0 === false
-            `,
-              (val) => {
-                chrome.devtools.inspectedWindow.eval(`console.log('val', ${JSON.stringify(val)})`, {
-                  useContentScriptContext: true,
-                })
-              },
-            )
             rightRowsRef.update({ items: getRightRows(node.props.data) })
           },
           dataFields: {

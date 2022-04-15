@@ -74,7 +74,6 @@ let rightContentRef = {}
 export const getRightRows = (data) => {
   return ['props', 'data', 'methods'].map((item) => ({
     children: [
-      { tag: 'hr' },
       {
         component: 'Flex',
         gap: 'small',
@@ -97,6 +96,48 @@ export const getRightRows = (data) => {
         },
         children: data && data[item] && getContentChildren(data[item]),
       },
+      { tag: 'hr' },
     ],
   }))
+}
+
+
+let pickingComponentModal = null
+export function startPickingComponent() {
+  pickingComponentModal = new nomui.Modal({
+    content: {
+      component: 'Rows',
+      styles: { padding: 2 },
+      items: [
+        { component: 'Icon', type: 'focus', styles: { text: ['success', '1d75x'] } },
+        { children: 'Click on a component on the page to select it' },
+        {
+          component: 'Button',
+          text: 'Cancel',
+          onClick() {
+            pickingComponentModal.close()
+            chrome.devtools.inspectedWindow.eval(
+              `
+              window.postMessage({
+                name: 'TO_BACK_COMPONENT_PICK_CANCELED',
+              })
+            `,
+            )
+          },
+        },
+      ],
+    },
+  })
+
+  chrome.devtools.inspectedWindow.eval(
+    `
+    console.log('-----------------');
+    window.postMessage({
+      name: 'TO_BACK_COMPONENT_PICK',
+    })
+  `,
+  )
+}
+export function stopPickingComponent() {
+  pickingComponentModal.close()
 }

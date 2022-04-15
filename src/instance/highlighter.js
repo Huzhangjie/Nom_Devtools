@@ -31,11 +31,11 @@ function createOverlay() {
 // This prevents "sticky" highlights that are not removed because highlight is async
 const jobQueue = new JobQueue();
 
-export async function highlight({ __nom_selector, key }) {
+export async function highlight({ __nom_selector, key, el }) {
   await jobQueue.queue("highlight", async () => {
-    if (!__nom_selector) return;
+    if (!__nom_selector && !el) return;
 
-    const { bounds, componentType: name } = getComponentBoundsAndName({ __nom_selector, key });
+    const { bounds, componentType: name } = getComponentBoundsAndName({ __nom_selector, key, el });
     console.log("🚀 ~ file: highlighter.js ds, name", bounds, name);
     if (bounds) {
       createOverlay();
@@ -163,14 +163,16 @@ function stopUpdateTimer() {
   clearInterval(updateTimer);
 }
 
-function getComponentBoundsAndName({ __nom_selector, key }) {
-  let el = null;
-  const els = document.querySelectorAll(__nom_selector);
-  if (!els || !els.length) return;
-  if (els.length > 1) {
-    el = Array.from(els).find((item) => item.component.key === key);
-  } else {
-    el = els[0];
+function getComponentBoundsAndName({ __nom_selector, key, el = null }) {
+  console.log("🚀 ~ file: higoundsAndName ~ el", el)
+  if(!el) {
+    const els = document.querySelectorAll(__nom_selector);
+    if (!els || !els.length) return;
+    if (els.length > 1) {
+      el = Array.from(els).find((item) => item.component.key === key);
+    } else {
+      el = els[0];
+    }
   }
 
   currentInstance = el
