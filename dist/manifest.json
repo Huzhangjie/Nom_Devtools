@@ -24,11 +24,6 @@
       "matches": ["<all_urls>"],
       "js": ["js/content.js"],
       "run_at": "document_start"
-    },
-    {
-      "matches": ["<all_urls>"],
-      "js": ["js/detector.js"],
-      "run_at": "document_idle"
     }
   ],
   
@@ -43,7 +38,7 @@
       "matches":  ["<all_urls>"]
     },
     {
-      "resources": ["js/highlighter.js" ],
+      "resources": ["js/detector.js" ],
       "matches":  ["<all_urls>"]
     }
   ]

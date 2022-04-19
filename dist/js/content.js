@@ -4,8 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
 })
 
 function injectCustomJs(jsPath) {
-  // jsPath = jsPath || "js/detector.js";
-  jsPath = jsPath || 'js/get-inst.js'
+  jsPath = jsPath || "js/detector.js";
   var temp = document.createElement('script')
   temp.setAttribute('type', 'text/javascript')
   temp.src = chrome.runtime.getURL(jsPath)
@@ -22,22 +21,22 @@ window.addEventListener(
     const { name, payload } = e.data
     if (e.source !== window) return
 
-    if (name === 'updateTree') {
+    // detector判断是存在nomui后，引入get-inst.js
+    if(name === 'NOM_DETECTOR') {
+      injectCustomJs('js/get-inst.js')
+      chrome.runtime.sendMessage(e.data);
+
+    } else if (name === 'updateTree') {
       chrome.runtime.sendMessage({
         name: 'updateTree',
         payload,
       })
-    }
-
-    // 选中dom 找到对应的 panel节点
-    if (name === 'TO_FRONT_COMPONENT_PICK') {
+    } else if (name === 'TO_FRONT_COMPONENT_PICK') { // 选中dom 找到对应的 panel节点
       chrome.runtime.sendMessage({
         name: 'TO_FRONT_COMPONENT_PICK',
         payload,
       })
-    }
-
-    if (name === 'TO_FRONT_COMPONENT_PICK_CANCELED') {
+    } else if (name === 'TO_FRONT_COMPONENT_PICK_CANCELED') {
       chrome.runtime.sendMessage({
         name: 'TO_FRONT_COMPONENT_PICK_CANCELED',
         payload,

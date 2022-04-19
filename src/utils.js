@@ -76,12 +76,8 @@ export function getComponentTree(component, lastSelector = null) {
   const { componentType } = component
 
   const { data, methods } = getDataAndMethodsFormComp(component)
-  data.selectable = {
-    byClick: true,
-    id: '123',
-  }
 
-  delete component.props.children
+  // delete component.props.children
   // delete component.props.reference
 
   // 选择器类名

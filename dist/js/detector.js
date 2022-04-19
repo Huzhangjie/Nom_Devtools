@@ -1,26 +1,18 @@
-// 检测页面是否挂载
-window.addEventListener("message", (e) => {
-  if (e.source === window && e.data.nomUIDetected) {
-    chrome.runtime.sendMessage(e.data);
-  }
-});
 function detect(win) {
   setTimeout(() => {
     if (win.nomui) {
       win.postMessage(
         {
-          name: "paintRecording",
+          name: "NOM_DETECTOR",
           nomUIDetected: true,
         },
-        "*"
       );
     } else {
       win.postMessage(
         {
-          name: "paintRecording",
+          name: "NOM_DETECTOR",
           nomUIDetected: false,
         },
-        "*"
       );
     }
   }, 100);

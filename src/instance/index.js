@@ -13,23 +13,13 @@ window.addEventListener(
 
     if (name === 'initDevtools') {
       getInst()
-    }
-
-    if (name === 'TO_BACK_COMPONENT_MOUSE_OVER') {
+    } else if (name === 'TO_BACK_COMPONENT_MOUSE_OVER') {
       hightlightDOM(payload)
-    }
-
-    if (name === 'TO_BACK_COMPONENT_MOUSE_LEAVE') {
+    } else if (name === 'TO_BACK_COMPONENT_MOUSE_LEAVE') {
       unHighlight()
-    }
-
-    // 给 window加上 mouseover事件
-    if (name === 'TO_BACK_COMPONENT_PICK') {
+    } else if (name === 'TO_BACK_COMPONENT_PICK') { // 给 window加上 mouseover事件
       componentPicker.startSelecting()
-    }
-
-    // 去掉 window 的mouseover事件
-    if (name === 'TO_BACK_COMPONENT_PICK_CANCELED') {
+    } else if (name === 'TO_BACK_COMPONENT_PICK_CANCELED') { // 去掉 window 的mouseover事件
       componentPicker.stopSelecting()
     }
   },

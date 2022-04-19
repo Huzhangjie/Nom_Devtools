@@ -30,11 +30,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const tabId = sender.tab.id;
     
     if (message.nomUIDetected) {
-      // chrome.browserAction.setIcon({
+      // chrome.action.setIcon({
       //     tabId,
       //     path: 'icons/icon-active.png',
       // });
-      chrome.browserAction.setPopup({
+      chrome.action.setPopup({
           tabId,
           popup: 'popups/enabled.html',
       });
