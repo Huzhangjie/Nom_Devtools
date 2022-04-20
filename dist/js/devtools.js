@@ -31,9 +31,6 @@ function createPanels() {
 
       // 1.与后台网页消息通信-长连接
       const port = chrome.runtime.connect({ name: "devtools" });
-      // chrome.tabs.getCurrent(tab => {
-      // chrome.tabs.executeScript(chrome.devtools.inspectedWindow.tabId, {file: 'js/get-inst.js'});
-      // })
 
       // 2.搭桥: 此步骤后，调动 background的即可通知到当前 devtools中
       port.postMessage({
