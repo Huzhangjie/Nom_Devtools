@@ -118,7 +118,7 @@ onmouseleave() {
 - panel面板中的控制左右宽度
 - panel面板中的查询过滤（tree子节点或右侧state的值）
 - 当前只在初始化遍历时，获取了组件树的数据，需加上dom中子组件后，再对panel中tree的部分更新（需要修改nomui实现）
-
+- eslint未生效
 
 ## 参考
 - [vuejs/devtools](https://github.com/vuejs/devtools)
