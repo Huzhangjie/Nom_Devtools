@@ -44,7 +44,6 @@ new nomui.Component({
       component: 'Flex',
       justify: 'between',
       align: 'center',
-      styles: { border: ['bottom'] },
       cols: [
         {
           component: 'Button',
@@ -72,72 +71,79 @@ new nomui.Component({
       ],
     },
     {
-      component: 'Cols',
-      strechIndex: 1,
-      align: 'start',
-      items: [
+      component: 'Flex',
+      wrap: true,
+      cols: [
         {
-          component: 'Tree',
-          attrs: {
-            style: {
-              height: '95vh',
-              overflowY: 'auto',
-            },
-            onmousemove({ target }) {
-              if (
-                !target.component ||
-                target.component.componentType !== 'TreeNodeContent' ||
-                target === lastMousemoveNode
-              )
-                return
-              lastMousemoveNode = target
+          span: 6,
+          styles: { border: ['top', 'right'] },
+          children: {
+            component: 'Tree',
+            attrs: {
+              style: {
+                height: '95vh',
+                overflowY: 'auto',
+              },
+              onmousemove({ target }) {
+                if (
+                  !target.component ||
+                  target.component.componentType !== 'TreeNodeContent' ||
+                  target === lastMousemoveNode
+                )
+                  return
+                lastMousemoveNode = target
 
-              chrome.devtools.inspectedWindow.eval(
-                `
-                window.postMessage({
-                  name: 'TO_BACK_COMPONENT_MOUSE_OVER',
-                  payload: ${JSON.stringify(target.component.node.props.data)}
-                })
-              `,
-                { useContentScriptContext: true },
-              )
-            },
-            onmouseleave() {
-              chrome.devtools.inspectedWindow.eval(
-                `
-                window.postMessage({
-                  name: 'TO_BACK_COMPONENT_MOUSE_LEAVE',
-                  payload: {}
-                })
+                chrome.devtools.inspectedWindow.eval(
+                  `
+                  window.postMessage({
+                    name: 'TO_BACK_COMPONENT_MOUSE_OVER',
+                    payload: ${JSON.stringify(target.component.node.props.data)}
+                  })
                 `,
-              )
+                  { useContentScriptContext: true },
+                )
+              },
+              onmouseleave() {
+                chrome.devtools.inspectedWindow.eval(
+                  `
+                  window.postMessage({
+                    name: 'TO_BACK_COMPONENT_MOUSE_LEAVE',
+                    payload: {}
+                  })
+                  `,
+                )
+              },
             },
+            ref: (c) => {
+              treeRef = c
+            },
+            expandable: { byIndicator: true },
+            onNodeClick({ node }) {
+              rightRowsRef.update({ items: getRightRows(node.props.data) })
+            },
+            dataFields: {
+              key: 'key',
+              text: 'componentType',
+            },
+            data: [],
           },
-          ref: (c) => {
-            treeRef = c
-          },
-          expandable: { byIndicator: true },
-          onNodeClick({ node }) {
-            rightRowsRef.update({ items: getRightRows(node.props.data) })
-          },
-          dataFields: {
-            key: 'key',
-            text: 'componentType',
-          },
-          data: [],
         },
         {
-          component: 'Rows',
-          attrs: {
-            style: {
-              height: '95vh',
-              overflowY: 'auto',
+          span: 6,
+          styles: { border: ['top'] },
+          children: {
+            component: 'Rows',
+            attrs: {
+              style: {
+                height: '95vh',
+                overflowY: 'auto',
+              },
             },
+            ref: (c) => {
+              rightRowsRef = c
+            },
+            items: getRightRows(),
           },
-          ref: (c) => {
-            rightRowsRef = c
-          },
-          items: getRightRows(),
         },
       ],
     },

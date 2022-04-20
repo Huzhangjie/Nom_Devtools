@@ -1,11 +1,15 @@
 import { INDICATOR_PROPS, isNullish } from '../utils'
 
-// 具体的 props, data 数据部分 key, value
-export function getContentChildren(data, level = 1) {
+/**
+ * @param {*} data 具体的对象数据
+ * @param {*} contentType  'props' | 'data' | 'methods'
+ * @returns
+ */
+export function getContentChildren(data, contentType) {
   return Object.entries(data).map(([key, value]) => {
     let objectChildRef = null
 
-    const { valueText, hasExpand, textColor } = _getValueTextAmdColor(value)
+    const { valueText, hasExpand, textColor } = _getValueTextAndColor(value, contentType)
 
     return {
       component: 'Flex',
@@ -47,25 +51,29 @@ export function getContentChildren(data, level = 1) {
   })
 }
 
-function _getValueTextAmdColor(value) {
+function _getValueTextAndColor(value, contentType) {
   const isValString = typeof value === 'string'
   const isValNumber = typeof value === 'number'
   const isValBoolean = typeof value === 'boolean'
   const isValObject = value && typeof value === 'object'
   const isValArray = Array.isArray(value)
+  const isMethodsContent = contentType === 'methods'
 
   const hasExpand = isValArray || isValObject
 
   return {
     hasExpand,
-    textColor: isNullish(value) || isValBoolean || isValNumber ? 'blue' : null,
-    valueText: isValObject
-      ? 'Object'
-      : isValArray
-      ? `Array[${value.length}]`
-      : isValString
-      ? `"${value}"`
-      : `${value}`,
+    textColor: isNullish(value) || isValBoolean || isValNumber || isMethodsContent ? 'blue' : null,
+    valueText:
+    isMethodsContent
+        ? value.replace(/function (\(.+\)) {(.|\n)+$/, 'f $1')
+        : isValArray
+        ? `Array[${value.length}]`
+        : isValObject
+        ? 'Object'
+        : isValString
+        ? `"${value}"`
+        : `${value}`,
   }
 }
 
@@ -94,13 +102,12 @@ export const getRightRows = (data) => {
         ref: (c) => {
           rightContentRef[`${item}Ref`] = c
         },
-        children: data && data[item] && getContentChildren(data[item]),
+        children: data && data[item] && getContentChildren(data[item], item),
       },
       { tag: 'hr' },
     ],
   }))
 }
-
 
 let pickingComponentModal = null
 export function startPickingComponent() {

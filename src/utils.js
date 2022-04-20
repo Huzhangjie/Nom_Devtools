@@ -106,8 +106,8 @@ function getDataAndMethodsFormComp(component) {
     let value = component[key]
     if (IGNORE_COMP_KEYS.includes(key) || key === 'props' || value instanceof HTMLElement) {
       return
-    } else if (nomui.utils.isFunction(value)) {
-      methods[key] = value
+    } else if (nomui.utils.isFunction(value) && !key.startsWith('_')) {
+      methods[key] = value.toString()
     } else {
       data[key] = value
     }
